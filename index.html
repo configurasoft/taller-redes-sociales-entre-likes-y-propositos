@@ -276,7 +276,8 @@
     outline-offset: 3px;
   }
   .story-heart.is-liked, .comment-like.is-liked { color: var(--red); }
-  .story-heart.is-liked .story-heart-icon { color: var(--red); }
+  .story-heart.is-liked .story-heart-icon,
+  .story-heart.has-likes .story-heart-icon { color: var(--red); }
   .story-like-count { font-size: .68rem; color: var(--muted); }
   .story-heart.is-liked .story-like-count { color: var(--red); }
 
@@ -990,7 +991,7 @@
 <!-- App header -->
 <header class="app-header">
   <div class="logo">
-    <div class="logo-mark">DC</div>
+    <div class="logo-mark">MVI</div>
     <div class="logo-text">Redes Sociales <span>like y propósito</span></div>
   </div>
   <div class="header-actions">
@@ -1386,12 +1387,14 @@ simplifiquen el trabajo de todos.</p>
       if (ownLikeResult.error) throw ownLikeResult.error;
 
       const liked = ownLikeResult.data.length > 0;
+      const hasLikes = (countResult.count || 0) > 0;
       heart.classList.toggle('is-liked', liked);
+      heart.classList.toggle('has-likes', hasLikes);
       heart.setAttribute('aria-pressed', String(liked));
       heart.querySelector('.story-like-count').textContent = String(countResult.count || 0);
       const icon = heart.querySelector('.story-heart-icon');
       icon.textContent = liked ? '♥' : '♡';
-      icon.style.color = liked ? 'var(--red)' : '';
+      icon.style.color = liked || hasLikes ? 'var(--red)' : '';
     }
 
     async function toggleStoryLike(heart) {
