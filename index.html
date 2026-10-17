@@ -276,6 +276,7 @@
     outline-offset: 3px;
   }
   .story-heart.is-liked, .comment-like.is-liked { color: var(--red); }
+  .story-heart.is-liked .story-heart-icon { color: var(--red); }
   .story-like-count { font-size: .68rem; color: var(--muted); }
   .story-heart.is-liked .story-like-count { color: var(--red); }
 
@@ -990,7 +991,7 @@
 <header class="app-header">
   <div class="logo">
     <div class="logo-mark">DC</div>
-    <div class="logo-text">De los clics <span>al propósito</span></div>
+    <div class="logo-text">Redes Sociales <span>like y propósito</span></div>
   </div>
   <div class="header-actions">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -1297,7 +1298,7 @@ simplifiquen el trabajo de todos.</p>
           <div class="pc-tl-item pc-study">
             <div class="pc-tl-year">08/2023</div>
             <div class="pc-tl-title">Auditor Interno ISO/IEC 25000:2014</div>
-            <div class="pc-tl-desc">Ingeniería de sistemas y software · Corporación Universitaria Minuto de Dios</div>
+            <div class="pc-tl-desc">Auditoría de Sistemas de Información y software · SGS.SA</div>
           </div>
         </div>
       </div>
@@ -1388,7 +1389,9 @@ simplifiquen el trabajo de todos.</p>
       heart.classList.toggle('is-liked', liked);
       heart.setAttribute('aria-pressed', String(liked));
       heart.querySelector('.story-like-count').textContent = String(countResult.count || 0);
-      heart.querySelector('.story-heart-icon').textContent = liked ? '♥' : '♡';
+      const icon = heart.querySelector('.story-heart-icon');
+      icon.textContent = liked ? '♥' : '♡';
+      icon.style.color = liked ? 'var(--red)' : '';
     }
 
     async function toggleStoryLike(heart) {
