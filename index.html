@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>De los clics al propósito · Jhonatan Valencia</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-soft: #fafafa;
+    --bg-soft2: #f5f5f5;
+    --border: #efefef;
+    --border2: #dbdbdb;
+    --text: #000000;
+    --text-soft: #262626;
+    --muted: #737373;
+    --muted2: #a8a8a8;
+    --blue: #0095f6;
+    --red: #ed4956;
+    --radius: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ===== TIMELINE / STORY PROGRESS ===== */
+  .story-progress {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    display: flex;
+    gap: 3px;
+    background: #fff;
+    z-index: 200;
+  }
+  .segment {
+    flex: 1;
+    background: var(--border);
+    cursor: pointer;
+    transition: background .25s;
+    border-radius: 2px;
+  }
+  .segment.past { background: #737373; }
+  .segment.active { background: #000; }
+
+  /* ===== APP HEADER ===== */
+  .app-header {
+    position: fixed;
+    top: 3px; left: 0; right: 0;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    background: rgba(255,255,255,.94);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+    z-index: 150;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-mark {
+    width: 22px; height: 22px;
+    border: 1.5px solid #000;
+    border-radius: 6px;
+    display: grid;
+    place-items: center;
+    font-size: .72rem;
+    font-weight: 700;
+  }
+  .logo-text {
+    font-size: 1.02rem;
+    font-weight: 700;
+    letter-spacing: -.01em;
+    color: #000;
+  }
+  .logo-text span { font-weight: 400; color: var(--muted); }
+  .header-actions { display: flex; gap: 18px; align-items: center; }
+  .header-actions svg { width: 22px; height: 22px; cursor: pointer; color: #000; }
+
+  /* ===== SLIDES ===== */
+  .slides {
+    position: fixed;
+    top: 55px; bottom: 62px; left: 0; right: 0;
+    overflow: hidden;
+    background: var(--bg-soft);
+  }
+  .slide {
+    position: absolute;
+    inset: 0;
+    padding: 24px 20px;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .35s, visibility .35s;
+  }
+  .slide.active { opacity: 1; visibility: visible; }
+  .slide::-webkit-scrollbar { width: 6px; }
+  .slide::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 6px; }
+
+  /* ===== BOTTOM BAR ===== */
+  .bottom-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 62px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    background: rgba(255,255,255,.94);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-top: 1px solid var(--border);
+    z-index: 150;
+  }
+  .nav-btn {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: #fff;
+    border: 1px solid var(--border2);
+    color: #000;
+    font-size: 1.05rem;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition: all .2s;
+  }
+  .nav-btn:hover { background: var(--bg-soft2); border-color: var(--muted); }
+  .nav-btn:disabled { opacity: .35; cursor: not-allowed; }
+  .counter {
+    font-size: .78rem;
+    color: var(--muted);
+    letter-spacing: .14em;
+    font-variant-numeric: tabular-nums;
+    min-width: 64px;
+    text-align: center;
+  }
+  .dots { display: flex; gap: 6px; }
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--border2);
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: all .25s;
+  }
+  .dot.active { background: #000; width: 18px; border-radius: 3px; }
+
+  /* ===== STORY COVER ===== */
+  .story-cover {
+    width: 100%;
+    max-width: 440px;
+    height: 100%;
+    max-height: 760px;
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 24px rgba(0,0,0,.06);
+    display: flex;
+    flex-direction: column;
+    padding: 22px;
+    position: relative;
+    overflow: hidden;
+  }
+  .story-timer {
+    position: absolute;
+    top: 12px; left: 12px; right: 12px;
+    height: 2px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    z-index: 5;
+  }
+  .story-timer-bar {
+    height: 100%;
+    width: 0%;
+    background: #000;
+    border-radius: 2px;
+    animation: timer 8s linear infinite;
+  }
+  @keyframes timer { from { width: 0%; } to { width: 100%; } }
+  .story-user-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 16px;
+    z-index: 5;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .ring-small { padding: 2px; background: #000; border-radius: 50%; display: inline-block; }
+  .inner-small {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: block;
+    object-fit: cover;
+  }
+  .story-user { font-size: .85rem; font-weight: 600; color: #000; }
+  .story-time { font-size: .75rem; color: var(--muted); }
+  .story-close {
+    margin-left: auto;
+    background: transparent;
+    border: none;
+    color: #000;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 4px 8px;
+  }
+  .story-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: safe center;
+    z-index: 5;
+    position: relative;
+    margin-top: 18px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+  .story-body::-webkit-scrollbar { width: 4px; }
+  .story-body::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+  .story-footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 5;
+    position: relative;
+    margin-top: 18px;
+    flex-shrink: 0;
+  }
+  .story-reply {
+    flex: 1;
+    padding: 11px 16px;
+    border: 1px solid var(--border2);
+    border-radius: 999px;
+    font-size: .85rem;
+    color: var(--muted2);
+    background: var(--bg-soft);
+  }
+  .story-heart { font-size: 1.4rem; cursor: pointer; transition: transform .2s; }
+  .story-heart:hover { transform: scale(1.15); }
+
+  /* ===== COVER BODY ===== */
+  .story-body.cover-body,
+  .story-body.final-body {
+    justify-content: center;
+    text-align: center;
+    padding: 0 8px;
+    overflow: hidden;
+  }
+  .story-eyebrow {
+    font-size: .7rem;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 700;
+    margin-bottom: 18px;
+  }
+  .story-title {
+    font-size: clamp(2rem, 6vw, 2.9rem);
+    line-height: 1.05;
+    font-weight: 800;
+    margin-bottom: 22px;
+    letter-spacing: -.03em;
+    color: #000;
+  }
+  .story-title .accent { color: var(--blue); }
+  .story-divider {
+    width: 40px;
+    height: 2px;
+    background: #000;
+    margin: 0 auto 22px;
+    border-radius: 2px;
+  }
+  .story-sub {
+    font-size: .94rem;
+    color: var(--muted);
+    line-height: 1.65;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+
+  /* ===== INNER HEAD ===== */
+  .inner-head {
+    margin-bottom: 14px;
+    text-align: center;
+  }
+  .inner-num {
+    display: inline-block;
+    font-size: .68rem;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .inner-title {
+    font-size: clamp(1.2rem, 4vw, 1.5rem);
+    line-height: 1.15;
+    font-weight: 800;
+    letter-spacing: -.02em;
+    color: #000;
+    margin-bottom: 8px;
+  }
+  .inner-title .accent { color: var(--blue); }
+  .inner-sub {
+    font-size: .82rem;
+    color: var(--muted);
+    line-height: 1.55;
+    max-width: 36ch;
+    margin: 0 auto;
+  }
+  .inner-divider {
+    width: 32px;
+    height: 2px;
+    background: #000;
+    margin: 12px auto 16px;
+    border-radius: 2px;
+  }
+
+  /* ===== CONTENT ===== */
+  .content-lead {
+    font-size: .82rem;
+    color: var(--text-soft);
+    line-height: 1.6;
+    margin-bottom: 14px;
+    text-align: center;
+  }
+  .content-lead strong { color: #000; font-weight: 700; }
+  .content-lead em { color: #000; font-style: italic; }
+
+  .content-grid { display: grid; gap: 8px; }
+  .content-disclosure { margin-bottom: 12px; }
+  .content-disclosure .content-grid { display: none; }
+  .content-disclosure > .quote-block { display: none; }
+  .content-disclosure.is-open .content-grid { display: grid; }
+  .content-disclosure.is-open > .quote-block { display: block; }
+  .content-disclosure-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: var(--bg-soft);
+    color: #000;
+    font: inherit;
+    font-size: .74rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .content-disclosure-toggle:hover { background: var(--border); }
+  .content-disclosure-arrow { transition: transform .2s ease; }
+  .content-disclosure.is-open .content-disclosure-arrow { transform: rotate(180deg); }
+  .grid-5 { grid-template-columns: 1fr; }
+  .grid-3 { grid-template-columns: 1fr; }
+  .grid-2 { grid-template-columns: 1fr; }
+
+  .content-card {
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+  .content-card h3 {
+    font-size: .82rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: #000;
+  }
+  .content-card p {
+    font-size: .74rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .content-card .ico { font-size: 1.1rem; margin-bottom: 4px; display: block; }
+  .content-card .year-tag {
+    font-size: .62rem;
+    color: var(--muted);
+    font-weight: 700;
+    letter-spacing: .14em;
+    margin-bottom: 3px;
+    display: block;
+    text-transform: uppercase;
+  }
+
+  .split-panel {
+    border-radius: 10px;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    background: var(--bg-soft);
+  }
+  .split-panel.good { border-left: 3px solid #000; }
+  .split-panel.bad { border-left: 3px solid var(--border2); }
+  .split-panel h3 { font-size: .82rem; margin-bottom: 8px; font-weight: 700; color: #000; }
+  .split-panel ul { list-style: none; display: grid; gap: 5px; }
+  .split-panel li {
+    font-size: .74rem;
+    color: var(--muted);
+    line-height: 1.5;
+    padding-left: 14px;
+    position: relative;
+  }
+  .split-panel li::before {
+    content: "·";
+    position: absolute;
+    left: 2px;
+    color: #000;
+    font-weight: 900;
+    font-size: 1.4em;
+    line-height: 1;
+    top: -2px;
+  }
+  .split-panel.bad li::before { color: var(--muted2); }
+
+  .quote-block {
+    margin-top: 14px;
+    padding: 12px 16px;
+    border-left: 3px solid #000;
+    background: var(--bg-soft);
+    border-radius: 0 10px 10px 0;
+    font-size: .84rem;
+    line-height: 1.55;
+    color: #000;
+    font-weight: 500;
+    text-align: left;
+  }
+  .quote-block small {
+    display: block;
+    margin-top: 6px;
+    font-size: .66rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 700;
+  }
+
+  /* ===== AGENDA ===== */
+  .agenda-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px 10px;
+    margin-top: 8px;
+  }
+  .agenda-story {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: transform .2s;
+    padding: 12px 6px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: #fff;
+  }
+  .agenda-story:hover { transform: translateY(-2px); border-color: var(--border2); }
+  .agenda-story .ring { padding: 2px; }
+  .agenda-story .inner {
+    width: 52px; height: 52px;
+    font-size: 1rem;
+    font-family: inherit;
+    font-weight: 800;
+  }
+  .agenda-label {
+    font-size: .72rem;
+    text-align: center;
+    line-height: 1.25;
+    color: #000;
+    font-weight: 600;
+  }
+  .agenda-num-small {
+    display: block;
+    font-size: .58rem;
+    color: var(--muted);
+    font-weight: 700;
+    letter-spacing: .12em;
+    margin-bottom: 1px;
+    text-transform: uppercase;
+  }
+
+  /* ===== FINAL ===== */
+  .final-body .inner-num {
+    font-size: .68rem;
+    letter-spacing: .3em;
+    margin-bottom: 14px;
+  }
+  .final-body .inner-title {
+    font-size: clamp(1.6rem, 4vw, 2.2rem);
+    margin-bottom: 14px;
+  }
+  .final-body .inner-sub {
+    max-width: 36ch;
+    margin-bottom: 22px;
+  }
+  .final-contact {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: .82rem;
+    color: var(--muted);
+    padding: 14px;
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    text-align: center;
+  }
+  .final-contact b { color: #000; font-weight: 700; }
+
+  /* ===== AVATAR CTA (Ver mi perfil) ===== */
+  .avatar-cta {
+    cursor: pointer;
+    position: relative;
+    transition: transform .2s;
+  }
+  .avatar-cta:hover { transform: scale(1.08); }
+  .avatar-cta::after {
+    content: "Ver mi perfil";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 4px;
+    font-size: .62rem;
+    color: var(--blue);
+    font-weight: 600;
+    white-space: nowrap;
+    opacity: 1;
+    transition: opacity .2s;
+    pointer-events: none;
+    letter-spacing: .02em;
+  }
+  .avatar-cta:hover::after { color: #0077c8; }
+
+  /* ===== PROFILE MODAL ===== */
+  .profile-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 500;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeIn .25s ease;
+  }
+  .profile-modal.open { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+  .profile-card {
+    width: 100%;
+    max-width: 440px;
+    max-height: 88vh;
+    background: #fff;
+    border-radius: 18px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0,0,0,.2);
+    animation: slideUp .3s ease;
+  }
+  .profile-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .profile-card-head h3 {
+    font-size: .95rem;
+    font-weight: 700;
+    color: #000;
+    letter-spacing: -.01em;
+  }
+  .profile-card-close {
+    background: transparent;
+    border: none;
+    color: #000;
+    font-size: 1.3rem;
+    cursor: pointer;
+    padding: 4px 8px;
+    line-height: 1;
+  }
+  .profile-card-body {
+    overflow-y: auto;
+    padding: 22px 22px 26px;
+  }
+  .profile-card-body::-webkit-scrollbar { width: 6px; }
+  .profile-card-body::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 6px; }
+
+  .pc-top {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 18px;
+  }
+  .pc-avatar {
+    flex-shrink: 0;
+  }
+  .pc-ring {
+    padding: 2px;
+    background: linear-gradient(45deg, #000 0%, #333 100%);
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .pc-inner {
+    width: 82px; height: 82px;
+    border-radius: 50%;
+    display: block;
+    object-fit: cover;
+    border: 3px solid #fff;
+  }
+  .pc-info { flex: 1; min-width: 0; }
+  .pc-username {
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: #000;
+    margin-bottom: 10px;
+    letter-spacing: -.01em;
+  }
+  .pc-stats {
+    display: flex;
+    gap: 18px;
+    font-size: .82rem;
+    color: var(--muted);
+  }
+  .pc-stats b { color: #000; font-weight: 700; display: block; font-size: .95rem; }
+  .pc-stats span small { display: block; font-size: .7rem; color: var(--muted); }
+
+  .pc-bio {
+    font-size: .84rem;
+    line-height: 1.6;
+    color: var(--text-soft);
+    margin-bottom: 18px;
+    padding: 14px;
+    background: var(--bg-soft);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+  }
+  .pc-bio b { color: #000; font-weight: 700; }
+  .pc-bio p { margin-bottom: 2px; }
+  .pc-bio p:last-child { margin-bottom: 0; }
+
+  .pc-section {
+    margin-bottom: 18px;
+  }
+  .pc-section:last-child { margin-bottom: 0; }
+  .pc-section-title {
+    font-size: .68rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 700;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .pc-section-title::before {
+    content: "";
+    width: 14px;
+    height: 1.5px;
+    background: #000;
+    border-radius: 2px;
+  }
+
+  .pc-timeline {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-left: 22px;
+  }
+  .pc-timeline::before {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 8px;
+    bottom: 8px;
+    width: 1.5px;
+    background: var(--border2);
+    border-radius: 2px;
+  }
+  .pc-tl-item {
+    position: relative;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .pc-tl-item::before {
+    content: "";
+    position: absolute;
+    left: -20px;
+    top: 14px;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: #000;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 1px var(--border2);
+  }
+  .pc-tl-item.pc-study::before { background: var(--blue); }
+  .pc-tl-year {
+    font-size: .62rem;
+    color: var(--muted);
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+  .pc-tl-title {
+    font-size: .84rem;
+    font-weight: 600;
+    color: #000;
+    line-height: 1.3;
+    margin-bottom: 2px;
+  }
+  .pc-tl-desc {
+    font-size: .74rem;
+    color: var(--muted);
+    line-height: 1.45;
+  }
+
+  .pc-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .pc-chip {
+    font-size: .72rem;
+    color: #000;
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    padding: 5px 11px;
+    border-radius: 999px;
+    font-weight: 500;
+  }
+
+  .pc-quote {
+    padding: 12px 14px;
+    border-left: 3px solid #000;
+    background: var(--bg-soft);
+    border-radius: 0 10px 10px 0;
+    font-size: .82rem;
+    line-height: 1.55;
+    color: #000;
+    font-weight: 500;
+    font-style: italic;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 640px) {
+    .story-cover { max-height: none; height: 100%; }
+    .logo-text span { display: none; }
+    .pc-top { flex-direction: column; align-items: center; text-align: center; gap: 12px; }
+    .pc-stats { justify-content: center; }
+    .pc-bio { text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Timeline / story progress -->
+<div class="story-progress" id="storyProgress"></div>
+
+<!-- App header -->
+<header class="app-header">
+  <div class="logo">
+    <div class="logo-mark">DC</div>
+    <div class="logo-text">De los clics <span>al propósito</span></div>
+  </div>
+  <div class="header-actions">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+    </svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+    </svg>
+  </div>
+</header>
+
+<!-- Slides -->
+<main class="slides" id="slides">
+
+  <!-- 1. PORTADA -->
+  <section class="slide active">
+    <div class="story-cover">
+      <div class="story-timer"><div class="story-timer-bar"></div></div>
+      <div class="story-user-bar">
+        <div class="ring-small avatar-cta" data-profile><img class="inner-small" src="foto.png" alt="Jhonatan Valencia"></div>
+        <span class="story-user">jhonatan.valencia</span>
+        <span class="story-time">Hace 1 h</span>
+        <button class="story-close">✕</button>
+      </div>
+      <div class="story-body cover-body">
+        <p class="story-eyebrow">Taller</p>
+        <h1 class="story-title">Redes Sociales <br>entre <span class="accent">likes y propósito</span></h1>
+        <div class="story-divider"></div>
+      </div>
+      <div class="story-footer">
+        <div class="story-reply">Responde...</div>
+        <span class="story-heart">♡</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. TEMA 01 -->
+  <section class="slide">
+    <div class="story-cover">
+      <div class="story-timer"><div class="story-timer-bar"></div></div>
+      <div class="story-user-bar">
+        <div class="ring-small avatar-cta" data-profile><img class="inner-small" src="foto.png" alt="Jhonatan Valencia"></div>
+        <span class="story-user">jhonatan.valencia</span>
+        <span class="story-time">Hace 2 h</span>
+        <button class="story-close">✕</button>
+      </div>
+      <div class="story-body">
+        <div class="inner-head">
+          <span class="inner-num">Tema 01</span>
+          <h2 class="inner-title">De los primeros clics al <span class="accent">mundo social</span></h2>
+        </div>
+        <p class="content-lead">¿El problema fue la herramienta?</p>
+      
+       </div>
+      <div class="story-footer">
+        <div class="story-reply">Responde...</div>
+        <span class="story-heart">♡</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. TEMA 02 -->
+  <section class="slide">
+    <div class="story-cover">
+      <div class="story-timer"><div class="story-timer-bar"></div></div>
+      <div class="story-user-bar">
+        <div class="ring-small avatar-cta" data-profile><img class="inner-small" src="foto.png" alt="Jhonatan Valencia"></div>
+        <span class="story-user">jhonatan.valencia</span>
+        <span class="story-time">Hace 3 h</span>
+        <button class="story-close">✕</button>
+      </div>
+      <div class="story-body">
+        <div class="inner-head">
+          <span class="inner-num">Tema 02</span>
+          <h2 class="inner-title">¿Y las redes <span class="accent">para qué?</span></h2>
+        </div>
+          <p class="content-lead">La pregunta no es “¿cuánto tiempo paso en redes?”, sino “¿para qué lo paso?”.</p>
+     
+             
+      </div>
+      <div class="story-footer">
+        <div class="story-reply">Responde...</div>
+        <span class="story-heart">♡</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. TEMA 03 -->
+  <section class="slide">
+    <div class="story-cover">
+      <div class="story-timer"><div class="story-timer-bar"></div></div>
+      <div class="story-user-bar">
+        <div class="ring-small avatar-cta" data-profile><img class="inner-small" src="foto.png" alt="Jhonatan Valencia"></div>
+        <span class="story-user">jhonatan.valencia</span>
+        <span class="story-time">Hace 4 h</span>
+        <button class="story-close">✕</button>
+      </div>
+      <div class="story-body">
+        <div class="inner-head">
+          <span class="inner-num">Tema 03</span>
+          <h2 class="inner-title">Las redes y su <span class="accent">influencia</span></h2>
+        </div>
+        <p class="content-lead">¿Amplifican lo que ya hay en nosotros?</p>
+       
+      </div>
+      <div class="story-footer">
+        <div class="story-reply">Responde...</div>
+        <span class="story-heart">♡</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. TEMA 04 -->
+  <section class="slide">
+    <div class="story-cover">
+      <div class="story-timer"><div class="story-timer-bar"></div></div>
+      <div class="story-user-bar">
+        <div class="ring-small avatar-cta" data-profile><img class="inner-small" src="foto.png" alt="Jhonatan Valencia"></div>
+        <span class="story-user">jhonatan.valencia</span>
+        <span class="story-time">Hace 5 h</span>
+        <button class="story-close">✕</button>
+      </div>
+      <div class="story-body">
+        <div class="inner-head">
+          <span class="inner-num">Tema 04</span>
+          <h2 class="inner-title">Entre pantallas y <span class="accent">fe</span></h2>
+        </div>
+        <p class="content-lead">Cuando La fé supera el contenido digital.</p>
+           </div>
+      <div class="story-footer">
+        <div class="story-reply">Responde...</div>
+        <span class="story-heart">♡</span>
+      </div>
+    </div>
+  </section>
+  <!-- 6. TEMA 05 -->
+   <section class="slide">
+    <div class="story-cover">
+      <div class="story-timer"><div class="story-timer-bar"></div></div>
+      <div class="story-user-bar">
+        <div class="ring-small avatar-cta" data-profile><img class="inner-small" src="foto.png" alt="Jhonatan Valencia"></div>
+        <span class="story-user">jhonatan.valencia</span>
+        <span class="story-time">Hace 8 h</span>
+        <button class="story-close">✕</button>
+      </div>
+      <div class="story-body">
+        <div class="inner-head">
+          <span class="inner-num">Tema 05</span>
+          <h2 class="inner-title">La trampa de la <span class="accent">comparación</span></h2>
+        </div>
+        <p class="content-lead">Detŕas de camaras...</p>      
+      </div>
+      <div class="story-footer">
+        <div class="story-reply">Responde...</div>
+        <span class="story-heart">♡</span>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- 7. TEMA 06 -->
+  <section class="slide">
+    <div class="story-cover">
+      <div class="story-timer"><div class="story-timer-bar"></div></div>
+      <div class="story-user-bar">
+        <div class="ring-small avatar-cta" data-profile><img class="inner-small" src="foto.png" alt="Jhonatan Valencia"></div>
+        <span class="story-user">jhonatan.valencia</span>
+        <span class="story-time">Hace 7 h</span>
+        <button class="story-close">✕</button>
+      </div>
+      <div class="story-body">
+        <div class="inner-head">
+          <span class="inner-num">Tema 06</span>
+          <h2 class="inner-title">Mi <span class="accent">Identidad</span></h2>
+        </div>       
+        <p class="content-lead">No eres la versión que editas.</p>      
+      </div>
+      <div class="story-footer">
+        <div class="story-reply">Responde...</div>
+        <span class="story-heart">♡</span>
+      </div>
+    </div>
+  </section>
+
+ 
+  <!-- 8. TEMA 07 -->
+  <section class="slide">
+    <div class="story-cover">
+      <div class="story-timer"><div class="story-timer-bar"></div></div>
+      <div class="story-user-bar">
+        <div class="ring-small avatar-cta" data-profile><img class="inner-small" src="foto.png" alt="Jhonatan Valencia"></div>
+        <span class="story-user">jhonatan.valencia</span>
+        <span class="story-time">Hace 9 h</span>
+        <button class="story-close">✕</button>
+      </div>
+      <div class="story-body">
+        <div class="inner-head">
+          <span class="inner-num">Tema 07</span>
+          <h2 class="inner-title">De los likes al <span class="accent">propósito</span></h2>
+        </div>
+         </div>
+      <div class="story-footer">
+        <div class="story-reply">Responde...</div>
+        <span class="story-heart">♡</span>
+      </div>
+    </div>
+  </section>
+
+
+</main>
+
+<!-- Bottom navigation -->
+<footer class="bottom-bar">
+  <button class="nav-btn" id="prev">←</button>
+  <div class="dots" id="dots"></div>
+  <span class="counter" id="counter">01 / 10</span>
+  <button class="nav-btn" id="next">→</button>
+</footer>
+
+<!-- PROFILE MODAL -->
+<div class="profile-modal" id="profileModal">
+  <div class="profile-card">
+    <div class="profile-card-head">
+      <h3>Conóceme un poco más</h3>
+      <button class="profile-card-close" id="profileClose">✕</button>
+    </div>
+    <div class="profile-card-body">
+
+      <div class="pc-top">
+        <div class="pc-avatar">
+          <div class="pc-ring"><img class="pc-inner" src="foto.png" alt="Jhonatan Valencia"></div>
+        </div>
+        <div class="pc-info">
+          <div class="pc-username">jhonatan.valencia</div>
+          <div class="pc-stats">
+            <span><b>10</b><small>Mi Camino..</small></span>
+            <span><b>3</b><small>títulos</small></span>
+            <span><b>1</b><small>propósito</small></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pc-bio">
+        <p><b>Jhonatan Valencia Ayobi</b></p>
+        <p>Creo que la tecnología sirve de verdad cuando le trabaja a la gente, no cuando la distrae.</p>
+        <p>Me formé como ingeniero, seguí estudiando porque me gusta entender las cosas a fondo, y hoy acompaño proyectos donde puedo mezclar lo técnico con lo humano.</p>
+        </div>
+
+      <div class="pc-section">
+        <div class="pc-section-title">Lo que he aprendido</div>
+        <div class="pc-chips">
+          <span class="pc-chip">🎓 Pensar antes de construir</span>
+          <span class="pc-chip">💻 Hacer software con criterio</span>
+          <span class="pc-chip">🏅 Mirar con ojos exigentes</span>
+          <span class="pc-chip">🤝 Acompañar personas</span>
+          <span class="pc-chip">🙏 Vivir con propósito</span>
+        </div>
+      </div>
+
+      <div class="pc-section">
+        <div class="pc-section-title">Mi camino</div>
+        <div class="pc-timeline">
+          <div class="pc-tl-item pc-study">
+            <div class="pc-tl-year">2012 – 2016 · Estudio</div>
+            <div class="pc-tl-title">Ingeniería de Sistemas</div>
+            <div class="pc-tl-desc">Aquí aprendí a pensar, no solo a programar. La base de todo.</div>
+          </div>
+          <div class="pc-tl-item">
+            <div class="pc-tl-year">2017 – 2018</div>
+            <div class="pc-tl-title">Apoyo administrativo</div>
+            <div class="pc-tl-desc">Descubrí que detrás de cada dato siempre hay una persona.</div>
+          </div>
+          <div class="pc-tl-item">
+            <div class="pc-tl-year">2018 – 2019</div>
+            <div class="pc-tl-title">Soporte y capacitación</div>
+            <div class="pc-tl-desc">Llevé la tecnología a quienes no sabían usarla. Ahí entendí que explicar también es servir.</div>
+          </div>
+          <div class="pc-tl-item">
+            <div class="pc-tl-year">2022 – 2026</div>
+            <div class="pc-tl-title">Cuidando la información de un banco</div>
+            <div class="pc-tl-desc">Cuatro años aprendiendo que la confianza se construye con trabajo silencioso.</div>
+          </div>
+          <div class="pc-tl-item pc-study">
+            <div class="pc-tl-year">2023 · Estudio</div>
+            <div class="pc-tl-title">Especialización y auditor de calidad</div>
+            <div class="pc-tl-desc">Volví a las aulas para profundizar y aprender a mirar el trabajo con ojos más exigentes.</div>
+          </div>
+          <div class="pc-tl-item">
+            <div class="pc-tl-year">2026 – Hoy</div>
+            <div class="pc-tl-title">Liderando mi propio camino</div>
+            <div class="pc-tl-desc">Dirijo proyectos y construyo soluciones desde la idea hasta que funcionan de verdad.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pc-section">
+        <div class="pc-quote">“Hago que la tecnología le trabaje a la gente.”</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    const total = slides.length;
+    let current = 0;
+
+    const progressEl = document.getElementById('storyProgress');
+    const dotsEl = document.getElementById('dots');
+    const counterEl = document.getElementById('counter');
+    const prevBtn = document.getElementById('prev');
+    const nextBtn = document.getElementById('next');
+    const profileModal = document.getElementById('profileModal');
+    const profileClose = document.getElementById('profileClose');
+
+    document.querySelectorAll('.content-grid').forEach((grid, index) => {
+      const disclosure = document.createElement('div');
+      const toggle = document.createElement('button');
+      const label = document.createElement('span');
+      const arrow = document.createElement('span');
+      const gridId = 'content-grid-' + (index + 1);
+      const quote = grid.nextElementSibling?.classList.contains('quote-block')
+        ? grid.nextElementSibling
+        : null;
+
+      disclosure.className = 'content-disclosure';
+      grid.id = gridId;
+      toggle.type = 'button';
+      toggle.className = 'content-disclosure-toggle';
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.setAttribute('aria-controls', gridId);
+      label.textContent = 'Ver más';
+      arrow.className = 'content-disclosure-arrow';
+      arrow.setAttribute('aria-hidden', 'true');
+      arrow.textContent = '⌄';
+      toggle.append(label, arrow);
+
+      grid.before(disclosure);
+      disclosure.append(toggle, grid);
+      if (quote) disclosure.append(quote);
+      toggle.addEventListener('click', () => {
+        const isOpen = disclosure.classList.toggle('is-open');
+        toggle.setAttribute('aria-expanded', String(isOpen));
+        label.textContent = isOpen ? 'Ver menos' : 'Ver más';
+      });
+    });
+
+    const segments = slides.map((_, i) => {
+      const seg = document.createElement('div');
+      seg.className = 'segment';
+      seg.addEventListener('click', () => goTo(i));
+      progressEl.appendChild(seg);
+      return seg;
+    });
+
+    const dots = slides.map((_, i) => {
+      const d = document.createElement('button');
+      d.className = 'dot';
+      d.setAttribute('aria-label', 'Diapositiva ' + (i + 1));
+      d.addEventListener('click', () => goTo(i));
+      dotsEl.appendChild(d);
+      return d;
+    });
+
+    function pad(n) { return String(n).padStart(2, '0'); }
+
+    function goTo(index) {
+      if (index < 0 || index >= total || index === current) return;
+
+      segments.forEach((seg, i) => {
+        seg.classList.toggle('past', i < index);
+        seg.classList.toggle('active', i === index);
+      });
+      dots.forEach((d, i) => d.classList.toggle('active', i === index));
+
+      slides[current].classList.remove('active');
+      current = index;
+      const slide = slides[current];
+      slide.classList.add('active');
+      const body = slide.querySelector('.story-body');
+      if (body) body.scrollTop = 0;
+
+      counterEl.textContent = pad(current + 1) + ' / ' + pad(total);
+      prevBtn.disabled = current === 0;
+      nextBtn.disabled = current === total - 1;
+    }
+
+    const next = () => goTo(current + 1);
+    const prev = () => goTo(current - 1);
+
+    nextBtn.addEventListener('click', next);
+    prevBtn.addEventListener('click', prev);
+
+    document.addEventListener('keydown', (e) => {
+      if (['ArrowRight', 'ArrowDown', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); next(); }
+      if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(e.key)) { e.preventDefault(); prev(); }
+      if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+      if (e.key === 'End') { e.preventDefault(); goTo(total - 1); }
+      if (e.key === 'Escape' && profileModal.classList.contains('open')) closeProfile();
+    });
+
+    let tx = null, ty = null;
+    document.addEventListener('touchstart', (e) => {
+      tx = e.changedTouches[0].clientX;
+      ty = e.changedTouches[0].clientY;
+    }, { passive: true });
+    document.addEventListener('touchend', (e) => {
+      if (tx === null) return;
+      const dx = e.changedTouches[0].clientX - tx;
+      const dy = e.changedTouches[0].clientY - ty;
+      if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) {
+        dx < 0 ? next() : prev();
+      }
+      tx = ty = null;
+    }, { passive: true });
+
+    document.querySelectorAll('[data-go]').forEach(el => {
+      el.addEventListener('click', () => goTo(parseInt(el.dataset.go, 10)));
+    });
+
+    document.querySelectorAll('.story-heart').forEach(heart => {
+      heart.addEventListener('click', () => {
+        heart.textContent = heart.textContent === '♡' ? '♥' : '♡';
+        heart.style.color = heart.textContent === '♥' ? '#ed4956' : '#000';
+      });
+    });
+
+    // Profile modal
+    function openProfile() { profileModal.classList.add('open'); }
+    function closeProfile() { profileModal.classList.remove('open'); }
+
+    document.querySelectorAll('[data-profile]').forEach(el => {
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openProfile();
+      });
+    });
+    profileClose.addEventListener('click', closeProfile);
+    profileModal.addEventListener('click', (e) => {
+      if (e.target === profileModal) closeProfile();
+    });
+
+    segments[0].classList.add('active');
+    dots[0].classList.add('active');
+    counterEl.textContent = pad(1) + ' / ' + pad(total);
+    prevBtn.disabled = true;
+  })();
+</script>
+
+</body>
+</html>
