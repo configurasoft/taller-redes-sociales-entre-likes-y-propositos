@@ -333,6 +333,42 @@
     margin: 12px auto 16px;
     border-radius: 2px;
   }
+  .qr-cta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    text-align: center;
+  }
+  .qr-prompt {
+    margin: 0;
+    color: var(--text-soft);
+    font-size: .78rem;
+    font-weight: 600;
+  }
+  .qr-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: .62rem;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+  .qr-link:hover { color: #000; }
+  .qr-code {
+    display: block;
+    width: 174px;
+    max-width: 55vw;
+    height: auto;
+    padding: 7px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: #fff;
+    image-rendering: pixelated;
+  }
 
   /* ===== CONTENT ===== */
   .content-lead {
@@ -818,6 +854,13 @@
         <p class="story-eyebrow">Taller</p>
         <h1 class="story-title">Redes Sociales <br>entre <span class="accent">likes y propósito</span></h1>
         <div class="story-divider"></div>
+        <div class="qr-cta">
+          <p class="qr-prompt">Escanea el código para abrir la página</p>
+          <a class="qr-link" href="https://configurasoft.github.io/taller-redes-sociales-entre-likes-y-propositos/" target="_blank" rel="noopener noreferrer" aria-label="Abrir la página del taller en una nueva pestaña">
+            <img class="qr-code" src="codigo-qr.png" alt="Código QR que abre la página del taller">
+            <span>También puedes tocar aquí para abrirla</span>
+          </a>
+        </div>
       </div>
       <div class="story-footer">
         <div class="story-reply">Responde...</div>
@@ -990,7 +1033,7 @@
           <span class="inner-num">Tema 07</span>
           <h2 class="inner-title">De los likes al <span class="accent">propósito</span></h2>
         </div>
-         </div>
+      </div>
       <div class="story-footer">
         <div class="story-reply">Responde...</div>
         <span class="story-heart">♡</span>
