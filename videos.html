@@ -15,7 +15,32 @@
       gap: 20px;
       max-width: 1200px;
       margin: 0 auto;
-      padding: 24px;
+      padding: 84px 24px 24px;
+    }
+    .app-header {
+      position: fixed;
+      z-index: 5;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 0 24px;
+      background: rgba(0, 0, 0, .94);
+      border-bottom: 1px solid #333;
+      color: #fff;
+    }
+    .home-link {
+      color: #fff;
+      font: 600 .9rem -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      text-decoration: none;
+    }
+    .home-link:hover { color: #ccc; }
+    .home-link:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
+    .app-header h1 {
+      font: 600 1rem -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
     .video-link {
       position: relative;
@@ -54,6 +79,10 @@
   </style>
 </head>
 <body>
+  <header class="app-header">
+    <a class="home-link" href="index.html" aria-label="Volver al inicio">← Volver</a>
+    <h1>Videos</h1>
+  </header>
   <a class="video-link" href="https://www.youtube.com/watch?v=ciuRSwnUGU8" target="_blank" rel="noopener noreferrer" aria-label="Ver el primer video en YouTube">
     <img src="https://img.youtube.com/vi/ciuRSwnUGU8/hqdefault.jpg" alt="Miniatura del primer video">
     <span class="play-button" aria-hidden="true">▶</span>

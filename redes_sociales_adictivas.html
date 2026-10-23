@@ -38,6 +38,10 @@
     .logo-text { font-size: 1rem; font-weight: 700; letter-spacing: -.01em; }
     .logo-text span { color: var(--muted); font-weight: 400; }
     .header-label { color: var(--muted); font-size: .75rem; }
+    .header-tools { display: flex; align-items: center; gap: 16px; }
+    .home-link { color: #000; font-size: .8rem; font-weight: 600; text-decoration: none; }
+    .home-link:hover { color: var(--blue); }
+    .home-link:focus-visible { outline: 2px solid var(--blue); outline-offset: 4px; }
     .slides { position: fixed; top: 55px; bottom: 62px; left: 0; right: 0; overflow: hidden; background: var(--bg-soft); }
     .slide { position: absolute; inset: 0; padding: 18px 16px; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: opacity .3s, visibility .3s; }
     .slide.active { opacity: 1; visibility: visible; }
@@ -88,7 +92,10 @@
   <div class="story-progress" id="storyProgress" aria-label="Progreso de la presentación"></div>
   <header class="app-header">
     <div class="logo"><div class="logo-mark">MVI</div><div class="logo-text">Redes Sociales <span>like y propósito</span></div></div>
-    <span class="header-label">Atención y hábitos digitales</span>
+    <div class="header-tools">
+      <span class="header-label">Atención y hábitos digitales</span>
+      <a class="home-link" href="index.html" aria-label="Volver al inicio">← Volver</a>
+    </div>
   </header>
 
   <main class="slides">
