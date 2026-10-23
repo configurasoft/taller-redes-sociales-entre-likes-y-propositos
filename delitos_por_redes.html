@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#ffffff">
+<title>Delitos en redes sociales · Presentación</title>
+<style>
+  :root {
+    --bg: #fff;
+    --bg-soft: #fafafa;
+    --bg-soft2: #f5f5f5;
+    --border: #efefef;
+    --border2: #dbdbdb;
+    --text: #000;
+    --text-soft: #262626;
+    --muted: #737373;
+    --blue: #0095f6;
+    --red: #ed4956;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 100%; height: 100%; overflow: hidden;
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .story-progress {
+    position: fixed; z-index: 20; top: 0; left: 0; right: 0; height: 3px;
+    display: flex; gap: 3px; background: #fff;
+  }
+  .segment { flex: 1; border: 0; border-radius: 2px; background: var(--border); cursor: pointer; }
+  .segment.past { background: var(--muted); }
+  .segment.active { background: #000; }
+  .app-header {
+    position: fixed; z-index: 15; top: 3px; left: 0; right: 0; height: 52px;
+    display: flex; align-items: center; justify-content: space-between; padding: 0 20px;
+    background: rgba(255,255,255,.94); backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+  }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-mark {
+    width: 22px; height: 22px; border: 1.5px solid #000; border-radius: 6px;
+    display: grid; place-items: center; font-size: .62rem; font-weight: 800;
+  }
+  .logo-text { font-size: 1rem; font-weight: 700; letter-spacing: -.01em; }
+  .logo-text span { font-weight: 400; color: var(--muted); }
+  .header-label { color: var(--muted); font-size: .75rem; }
+  .slides {
+    position: fixed; top: 55px; bottom: 62px; left: 0; right: 0;
+    overflow: hidden; background: var(--bg-soft);
+  }
+  .slide {
+    position: absolute; inset: 0; padding: 18px 16px; display: flex;
+    justify-content: center; align-items: center; opacity: 0; visibility: hidden;
+    transition: opacity .3s, visibility .3s;
+  }
+  .slide.active { opacity: 1; visibility: visible; }
+  .story-cover {
+    position: relative; overflow: hidden; width: 100%; max-width: 440px; height: 100%; max-height: 760px;
+    padding: 22px; display: flex; flex-direction: column;
+    background: #fff; border: 1px solid var(--border); border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,.06);
+  }
+  .story-timer { position: absolute; top: 12px; left: 12px; right: 12px; height: 2px; background: var(--border); border-radius: 2px; }
+  .story-timer::after { content: ""; display: block; width: 100%; height: 100%; background: #000; border-radius: 2px; }
+  .story-user-bar { display: flex; align-items: center; gap: 9px; margin-top: 14px; flex-shrink: 0; }
+  .ring-small { width: 32px; height: 32px; padding: 2px; border-radius: 50%; background: #000; display: grid; place-items: center; }
+  .ring-small span { width: 100%; height: 100%; display: grid; place-items: center; border-radius: 50%; background: #fff; font-size: .62rem; font-weight: 800; }
+  .story-user { font-size: .82rem; font-weight: 700; }
+  .story-time { color: var(--muted); font-size: .72rem; }
+  .story-tag { margin-left: auto; color: var(--muted); font-size: .67rem; }
+  .story-body {
+    flex: 1; min-height: 0; margin-top: 16px; padding: 0 2px 4px;
+    display: flex; flex-direction: column; justify-content: safe center; overflow-y: auto;
+  }
+  .cover-body { text-align: center; align-items: center; }
+  .story-eyebrow, .inner-num {
+    display: inline-block; margin-bottom: 10px; color: var(--muted); font-size: .67rem;
+    font-weight: 700; letter-spacing: .2em; text-transform: uppercase;
+  }
+  .story-title { margin-bottom: 16px; font-size: clamp(2rem, 8vw, 2.8rem); line-height: 1.04; font-weight: 800; letter-spacing: -.04em; }
+  .accent { color: var(--blue); }
+  .story-divider { width: 38px; height: 2px; margin: 0 auto 16px; background: #000; border-radius: 2px; }
+  .story-sub { max-width: 34ch; color: var(--muted); font-size: .9rem; line-height: 1.6; }
+  .inner-head { margin-bottom: 12px; text-align: center; }
+  .inner-num { margin-bottom: 7px; }
+  .inner-title { margin-bottom: 7px; font-size: clamp(1.3rem, 5vw, 1.65rem); line-height: 1.12; font-weight: 800; letter-spacing: -.025em; }
+  .inner-sub { max-width: 36ch; margin: 0 auto; color: var(--muted); font-size: .8rem; line-height: 1.5; }
+  .inner-divider { width: 30px; height: 2px; margin: 10px auto 14px; background: #000; border-radius: 2px; }
+  .content-lead { margin-bottom: 12px; color: var(--text-soft); text-align: center; font-size: .82rem; line-height: 1.55; }
+  .content-grid { display: grid; gap: 8px; }
+  .content-card { padding: 11px 13px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-soft); }
+  .content-card h3 { margin-bottom: 3px; font-size: .8rem; font-weight: 700; }
+  .content-card p { color: var(--muted); font-size: .73rem; line-height: 1.45; }
+  .content-card .ico { display: block; margin-bottom: 3px; font-size: 1.05rem; }
+  .quote-block { margin-top: 10px; padding: 10px 13px; border-left: 3px solid #000; border-radius: 0 9px 9px 0; background: var(--bg-soft); color: var(--text-soft); font-size: .75rem; line-height: 1.5; }
+  .story-footer { display: flex; align-items: center; gap: 10px; margin-top: 12px; flex-shrink: 0; }
+  .story-reply { flex: 1; padding: 9px 14px; border: 1px solid var(--border2); border-radius: 999px; background: var(--bg-soft); color: var(--muted); font-size: .78rem; }
+  .story-heart { color: var(--red); font-size: 1.2rem; }
+  .bottom-bar {
+    position: fixed; z-index: 15; bottom: 0; left: 0; right: 0; height: 62px;
+    display: flex; align-items: center; justify-content: center; gap: 14px;
+    background: rgba(255,255,255,.94); backdrop-filter: blur(14px); border-top: 1px solid var(--border);
+  }
+  .nav-btn { width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid var(--border2); border-radius: 50%; background: #fff; font-size: 1rem; cursor: pointer; }
+  .nav-btn:hover:not(:disabled) { background: var(--bg-soft2); }
+  .nav-btn:disabled { opacity: .35; cursor: not-allowed; }
+  .dots { display: flex; gap: 6px; }
+  .dot { width: 6px; height: 6px; padding: 0; border: 0; border-radius: 50%; background: var(--border2); cursor: pointer; }
+  .dot.active { width: 18px; border-radius: 3px; background: #000; }
+  .counter { min-width: 64px; color: var(--muted); text-align: center; font-size: .76rem; letter-spacing: .12em; font-variant-numeric: tabular-nums; }
+  button:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+  @media (max-width: 640px) {
+    .story-cover { max-height: none; height: 100%; padding: 19px; }
+    .logo-text span, .header-label { display: none; }
+    .slide { padding: 10px; }
+  }
+</style>
+</head>
+<body>
+<div class="story-progress" id="storyProgress" aria-label="Progreso de la presentación"></div>
+<header class="app-header">
+  <div class="logo"><div class="logo-mark">MVI</div><div class="logo-text">Redes Sociales <span>uso seguro y responsable</span></div></div>
+  <span class="header-label">Presentación educativa</span>
+</header>
+
+<main class="slides" id="slides">
+  <section class="slide active" aria-label="Portada">
+    <div class="story-cover">
+      <div class="story-timer"></div>
+      <div class="story-user-bar"><div class="ring-small"><span>RS</span></div><span class="story-user">Ciudadanía digital</span><span class="story-time">· Presentación</span><span class="story-tag">01</span></div>
+      <div class="story-body cover-body">
+        <h1 class="story-title">Delitos en<br> <span class="accent">redes sociales</span></h1>
+        <div class="story-divider"></div>
+      </div>
+      <div class="story-footer"><div class="story-reply">Desliza o usa las flechas para comenzar</div><span class="story-heart" aria-hidden="true">♡</span></div>
+    </div>
+  </section>
+
+  <section class="slide" aria-label="Calumnia y difamación">
+    <div class="story-cover"><div class="story-timer"></div>
+      <div class="story-user-bar"><div class="ring-small"><span>RS</span></div><span class="story-user">Ciudadanía digital</span><span class="story-time">· Conductas de riesgo</span><span class="story-tag">02</span></div>
+      <div class="story-body">
+        <div class="inner-head"><span class="inner-num">Riesgo 01</span><h2 class="inner-title">Calumnia y <span class="accent">afectación al buen nombre</span></h2></div>
+        <p class="content-lead">Atribuir falsamente a alguien un delito o difundir acusaciones puede causar daños graves. </p>
+        <div class="content-grid">
+          <article class="content-card"><h3>Calumnia</h3><p>Atribuir falsamente a una persona la comisión de un delito.</p></article>
+          <article class="content-card"><h3>También al replicar</h3><p>Repetir o compartir en redes publicaciones de ese tipo hechas por otras personas puede amplificar el daño.</p></article>
+          <article class="content-card"><h3>Antes de compartir</h3><p>Verifica la fuente, distingue hechos de opiniones y no amplifiques acusaciones no comprobadas.</p></article>
+        </div>
+      </div>
+      <div class="story-footer"><div class="story-reply">Verifica antes de viralizar</div><span class="story-heart" aria-hidden="true">♡</span></div>
+    </div>
+  </section>
+
+  <section class="slide" aria-label="Suplantación de identidad">
+    <div class="story-cover"><div class="story-timer"></div>
+      <div class="story-user-bar"><div class="ring-small"><span>RS</span></div><span class="story-user">Ciudadanía digital</span><span class="story-time">· Conductas de riesgo</span><span class="story-tag">03</span></div>
+      <div class="story-body">
+        <div class="inner-head"><span class="inner-num">Riesgo 02</span><h2 class="inner-title">Suplantación de <span class="accent">identidad</span></h2></div>
+        <p class="content-lead">Crear perfiles falsos o usar datos ajenos para engañar, acosar o perjudicar puede vulnerar derechos y, según lo ocurrido, dar lugar a responsabilidades legales.</p>
+        <div class="content-grid">
+          <article class="content-card"><h3>¿En qué consiste?</h3><p>Proyectarse en las redes con un nombre y una imagen que no son propios.</p></article>
+          <article class="content-card"><h3>Protege tus cuentas</h3><p>Usa contraseñas únicas, activa la verificación en dos pasos y evita publicar datos personales sensibles.</p></article>
+          <article class="content-card"><h3>Si te suplantan</h3><p>Guarda enlaces y capturas, reporta el perfil en la plataforma y busca orientación de las autoridades.</p></article>
+        </div>
+      </div>
+      <div class="story-footer"><div class="story-reply">Cuida tu identidad digital</div><span class="story-heart" aria-hidden="true">♡</span></div>
+    </div>
+  </section>
+
+  <section class="slide" aria-label="Difusión de contenido íntimo">
+    <div class="story-cover"><div class="story-timer"></div>
+      <div class="story-user-bar"><div class="ring-small"><span>RS</span></div><span class="story-user">Ciudadanía digital</span><span class="story-time">· Derechos y privacidad</span><span class="story-tag">04</span></div>
+      <div class="story-body">
+        <div class="inner-head"><span class="inner-num">Riesgo 03</span><h2 class="inner-title">Privacidad e intimidad: <span class="accent">no difundas</span></h2></div>
+        <p class="content-lead">Compartir imágenes, videos o información íntima de otra persona sin autorización puede causar un daño profundo y tener consecuencias legales, de acuerdo con las circunstancias.</p>
+        <div class="content-grid">
+          <article class="content-card"><h3>Violación de la intimidad</h3><p>Publicar fotos, videos o información que revelan situaciones íntimas de otra persona.</p></article>
+          <article class="content-card"><h3>El consentimiento importa</h3><p>Haber recibido un contenido no significa tener permiso para reenviarlo, publicarlo o usarlo para presionar a alguien.</p></article>
+        </div>
+        <p class="quote-block">Si recibes contenido íntimo de otra persona, no lo descargues ni lo reenvíes. Repórtalo y busca ayuda.</p>
+      </div>
+      <div class="story-footer"><div class="story-reply">Respeta la privacidad de los demás</div><span class="story-heart" aria-hidden="true">♡</span></div>
+    </div>
+  </section>
+
+  <section class="slide" aria-label="Protección de niñas, niños y adolescentes">
+    <div class="story-cover"><div class="story-timer"></div>
+      <div class="story-user-bar"><div class="ring-small"><span>RS</span></div><span class="story-user">Ciudadanía digital</span><span class="story-time">· Protección especial</span><span class="story-tag">05</span></div>
+      <div class="story-body">
+        <div class="inner-head"><span class="inner-num">Riesgo 04</span><h2 class="inner-title">Protejamos a niñas, niños y <span class="accent">adolescentes</span></h2></div>
+        <p class="content-lead">La imagen, identidad y privacidad de menores requieren especial cuidado. Evita publicar información que permita ubicarlos o los exponga a riesgos.</p>
+        <div class="content-grid">
+          <article class="content-card"><h3>Protección de menores</h3><p>Publicar la imagen o identidad de una persona menor de edad sin la autorización de sus padres puede vulnerar sus derechos y su privacidad.</p></article>
+          <article class="content-card"><h3>Publica con cuidado</h3><p>Revisa permisos, audiencia y datos visibles: uniformes, ubicación, escuela o rutinas.</p></article>
+          <article class="content-card"><h3>Ante un riesgo</h3><p>Involucra a una persona adulta de confianza y contacta las autoridades de protección competentes.</p></article>
+        </div>
+      </div>
+      <div class="story-footer"><div class="story-reply">La protección empieza con nosotros</div><span class="story-heart" aria-hidden="true">♡</span></div>
+    </div>
+  </section>
+
+  <section class="slide" aria-label="Cómo actuar ante un caso">
+    <div class="story-cover"><div class="story-timer"></div>
+      <div class="story-user-bar"><div class="ring-small"><span>RS</span></div><span class="story-user">Ciudadanía digital</span><span class="story-time">· Si ocurre un caso</span><span class="story-tag">06</span></div>
+      <div class="story-body">
+        <div class="inner-head"><span class="inner-num">Actúa con calma</span><h2 class="inner-title">¿Qué hacer si te pasa a ti o a alguien <span class="accent">cercano?</span></h2></div>
+        <div class="inner-divider"></div>
+        <div class="content-grid">
+          <article class="content-card"><span class="ico">📸</span><h3>1. Conserva evidencia</h3><p>Guarda capturas, enlaces, nombres de usuario y fechas. No alteres ni difundas el material.</p></article>
+          <article class="content-card"><span class="ico">🚫</span><h3>2. Bloquea y reporta</h3><p>Usa las herramientas de denuncia de la plataforma y limita el contacto con quien agrede.</p></article>
+          <article class="content-card"><span class="ico">🤝</span><h3>3. Busca apoyo</h3><p>Habla con alguien de confianza. Si hay menores involucrados, avisa a una persona adulta responsable.</p></article>
+          <article class="content-card"><span class="ico">⚠️</span><h3>4. Acude a las autoridades</h3><p>Si hay amenazas, extorsión, difusión íntima o peligro inmediato, solicita orientación oficial. Ante emergencia en Colombia, llama al 123.</p></article>
+        </div>
+        <p class="quote-block">No respondas con amenazas ni tomes represalias: prioriza la seguridad y conserva la evidencia.</p>
+      </div>
+      <div class="story-footer"><div class="story-reply">Pedir ayuda también es actuar</div><span class="story-heart" aria-hidden="true">♡</span></div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="bottom-bar" aria-label="Navegación de diapositivas">
+  <button class="nav-btn" id="prev" type="button" aria-label="Diapositiva anterior">←</button>
+  <div class="dots" id="dots"></div>
+  <span class="counter" id="counter" aria-live="polite"></span>
+  <button class="nav-btn" id="next" type="button" aria-label="Diapositiva siguiente">→</button>
+</footer>
+<script>
+(() => {
+  const slides = [...document.querySelectorAll('.slide')];
+  const progress = document.getElementById('storyProgress');
+  const dotsEl = document.getElementById('dots');
+  const counter = document.getElementById('counter');
+  const prev = document.getElementById('prev');
+  const next = document.getElementById('next');
+  let current = 0;
+  const pad = n => String(n).padStart(2, '0');
+  const segments = slides.map((_, i) => {
+    const button = document.createElement('button');
+    button.type = 'button'; button.className = 'segment';
+    button.setAttribute('aria-label', `Ir a la diapositiva ${i + 1}`);
+    button.addEventListener('click', () => goTo(i)); progress.append(button); return button;
+  });
+  const dots = slides.map((_, i) => {
+    const button = document.createElement('button');
+    button.type = 'button'; button.className = 'dot';
+    button.setAttribute('aria-label', `Diapositiva ${i + 1}`);
+    button.addEventListener('click', () => goTo(i)); dotsEl.append(button); return button;
+  });
+  function goTo(index) {
+    if (index < 0 || index >= slides.length) return;
+    slides[current].classList.remove('active'); current = index; slides[current].classList.add('active');
+    segments.forEach((el, i) => { el.classList.toggle('past', i < current); el.classList.toggle('active', i === current); });
+    dots.forEach((el, i) => el.classList.toggle('active', i === current));
+    counter.textContent = `${pad(current + 1)} / ${pad(slides.length)}`;
+    prev.disabled = current === 0; next.disabled = current === slides.length - 1;
+    const body = slides[current].querySelector('.story-body'); if (body) body.scrollTop = 0;
+  }
+  prev.addEventListener('click', () => goTo(current - 1));
+  next.addEventListener('click', () => goTo(current + 1));
+  document.addEventListener('keydown', event => {
+    if (event.target.closest('button, a, input, textarea')) return;
+    if (['ArrowRight', 'ArrowDown', 'PageDown', ' '].includes(event.key)) { event.preventDefault(); goTo(current + 1); }
+    if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(event.key)) { event.preventDefault(); goTo(current - 1); }
+    if (event.key === 'Home') goTo(0);
+    if (event.key === 'End') goTo(slides.length - 1);
+  });
+  let touchX = null, touchY = null;
+  document.addEventListener('touchstart', event => { touchX = event.changedTouches[0].clientX; touchY = event.changedTouches[0].clientY; }, {passive:true});
+  document.addEventListener('touchend', event => {
+    if (touchX === null) return;
+    const dx = event.changedTouches[0].clientX - touchX;
+    const dy = event.changedTouches[0].clientY - touchY;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) goTo(current + (dx < 0 ? 1 : -1));
+    touchX = touchY = null;
+  }, {passive:true});
+  goTo(0);
+})();
+</script>
+</body>
+</html>
